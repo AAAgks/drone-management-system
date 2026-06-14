@@ -1,4 +1,4 @@
-# 🛸 无人机信息管理系统
+# 🛸 无人机信息管理系统（分离版）
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-1.8-007396?logo=openjdk&logoColor=white" alt="Java">
@@ -9,6 +9,7 @@
   <img src="https://img.shields.io/badge/MyBatis-2.1-FF6600" alt="MyBatis">
   <img src="https://img.shields.io/badge/Shiro-1.7-929292?logo=apache&logoColor=white" alt="Shiro">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/架构-分离-blue" alt="Separated">
 </p>
 
 <p align="center">
@@ -19,6 +20,7 @@
 
 ## 📋 目录
 
+- [与不分离版的区别](#-与不分离版的区别)
 - [功能特性](#-功能特性)
 - [技术栈](#-技术栈)
 - [项目结构](#-项目结构)
@@ -27,6 +29,19 @@
 - [快速开始](#-快速开始)
 - [认证机制](#-认证机制)
 - [AI 智能生成](#-ai-智能生成)
+
+---
+
+## 🔀 与不分离版的区别
+
+| 维度 | 分离版（本分支） | 不分离版（combined 分支） |
+|------|-----------------|---------------------------|
+| **架构** | 前后端独立部署 | 单体应用，前端打包进后端 |
+| **前端开发** | Vite HMR 热更新，开发体验好 | 需重新构建才能看到前端改动 |
+| **启动方式** | 分别启动 `start-backend.bat` + `start-frontend.bat` | `start.bat` 一键启动 |
+| **端口** | 后端 8080 + 前端 3000 | 仅 8080 |
+| **部署** | 前端可单独部署到 Nginx/CDN | 一个 jar 包搞定 |
+| **适用场景** | 团队协作、生产环境、大规模部署 | 快速演示、小型项目 |
 
 ---
 
@@ -169,8 +184,8 @@ drone-management-system/
 │       └── drone-api.md                       # API 接口文档
 │
 ├── harness_stu_Anti/                  # 🧪 测试工具集
-├── start-backend.bat                  # 后端一键启动
-├── start-frontend.bat                 # 前端一键启动
+├── start-backend.bat                  # 🔥 后端一键启动（含 MySQL + JDK 8）
+├── start-frontend.bat                 # 🔥 前端一键启动（Vite 开发服务器）
 ├── pom.xml                            # Maven 构建配置
 └── reasonix.toml                      # 项目分析配置
 ```
@@ -249,17 +264,19 @@ drone-management-system/
 
 ### 环境要求
 
-- **JDK** 1.8+
-- **Maven** 3.6+
-- **MySQL** 5.7+ / 8.0+
-- **Node.js** 18+
+- **JDK 1.8** — 项目已配置为使用 `D:\jdk8u492-b09`（不影响全局 JDK）
+- **Maven 3.6+**
+- **MySQL 8.0+**（推荐）或 SQLite 3
+- **Node.js 18+**（前端开发需要）
 
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/AAAgks/drone-management-system.git
-cd drone-management-system
+git clone https://github.com/AAAgks/Drone-Management-System.git
+cd Drone-Management-System
 ```
+
+> 💡 默认 `main` 分支即为分离版。不分离版请切换：`git checkout combined`
 
 ### 2. 初始化数据库
 
@@ -269,31 +286,27 @@ mysql -u root -p < docs/init-mysql.sql
 
 脚本会自动创建 `drone_db` 库、`drone` 表，并插入 5 条示例数据。
 
-### 3. 配置数据库连接
+> 💡 如果不想装 MySQL，修改 `src/main/resources/application.yml`：`spring.profiles.active: sqlite`
 
-编辑 `src/main/resources/application-mysql.yml`，修改数据库连接信息：
+### 3. 启动后端
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/drone_db?useSSL=false&serverTimezone=UTC&characterEncoding=utf-8
-    username: root
-    password: 你的密码
-```
+双击 **`start-backend.bat`**，脚本会自动：
 
-> 💡 如果不想装 MySQL，也可使用 SQLite 模式：修改 `application.yml` 中 `spring.profiles.active: sqlite`。
+1. 启动 MySQL 服务（MySQL96）
+2. 设置项目级 JDK 8（不影响全局环境）
+3. 运行 Spring Boot → **http://localhost:8080**
 
-### 4. 启动后端
+或使用 Maven 命令：
 
 ```bash
 mvn spring-boot:run
 ```
 
-或双击 `start-backend.bat`
+### 4. 启动前端
 
-后端启动后访问：**http://localhost:8080**
+双击 **`start-frontend.bat`** 启动 Vite 开发服务器。
 
-### 5. 启动前端
+或使用命令：
 
 ```bash
 cd frontend
@@ -301,13 +314,14 @@ npm install
 npm run dev
 ```
 
-或双击 `start-frontend.bat`
-
 前端启动后访问：**http://localhost:3000**
 
-### 6. 登录
+### 5. 登录
 
-默认账号：`admin` / `123456`
+| 项目 | 值 |
+|------|-----|
+| 默认用户名 | `admin` |
+| 默认密码 | `admin123` |
 
 ---
 
