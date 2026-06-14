@@ -1,0 +1,17 @@
+﻿# ==================================================================
+# SQLite 数据源配置（spring.profiles=sqlite 时生效）
+# ==================================================================
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.sqlite.JDBC         # SQLite JDBC 驱动
+    url: jdbc:sqlite:drone.db                  # 数据库文件保存在项目运行目录
+    druid:
+      initial-size: 1
+      min-idle: 1
+      max-active: 5
+      max-wait: 60000
+    initialization-mode: always
+    schema: classpath:schema-sqlite.sql        # SQLite 建表脚本
+    data: classpath:data-sqlite.sql            # 初始化数据（可选）
+    continue-on-error: true

@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- ================================================================
+     DroneMapper 对应的 SQL 映射文件。
+     namespace 必须与 Mapper 接口的全限定名一致。
+     通过 databaseId 属性实现 MySQL 和 SQLite 双数据库兼容：
+     - 不带 databaseId 的语句 → MySQL（默认）
+     - databaseId="sqlite" → SQLite
+     主要差异：MySQL 用 CONCAT() 拼模糊查询，SQLite 用 || 拼接
+     ================================================================ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.drone.mapper.DroneMapper">
+
+    <!-- ===== 结果映射：数据库下划线列名 → Java 驼峰属性 ===== -->
+    <resultMap id="droneMap" type="com.drone.domain.entity.Drone">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="model" property="model"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="manufacturer" property="manufacturer"/>
+        <result column="type" property="type"/>
+        <result column="weight" property="weight"/>
+        <result column="max_speed" property="maxSpeed"/>
+        <result column="max_altitude" property="maxAltitude"/>
+        <result column="endurance" property="endurance"/>
+        <result column="range_distance" property="rangeDistance"/>
+        <result column="max_payload" property="maxPayload"/>
+        <result column="camera_type" property="cameraType"/>
+        <result column="battery_capacity" property="batteryCapacity"/>
+        <result column="gps_accuracy" property="gpsAccuracy"/>
+        <result column="operating_temperature" property="operatingTemperature"/>
+        <result column="waterproof_level" property="waterproofLevel"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+        <result column="purchase_date" property="purchaseDate"/>
+        <result column="ai_generated" property="aiGenerated"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <!-- ==================== MySQL 版本 ==================== -->
+
+    <!-- 条件模糊查询（仅查未删除记录），结果按创建时间倒序 -->
+    <select id="selectByCondition" resultMap="droneMap">
+        SELECT * FROM drone
+        WHERE deleted = 0
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="model != null and model != ''">
+            AND model LIKE CONCAT('%', #{model}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 按 ID 查询（排除已删除） -->
+    <select id="selectById" resultMap="droneMap">
+        SELECT * FROM drone WHERE id = #{id} AND deleted = 0
+    </select>
+
+    <!-- 新增无人机，主键自动回填到实体 -->
+    <insert id="insert" parameterType="com.drone.domain.entity.Drone" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO drone (
+            name, model, serial_number, manufacturer, type,
+            weight, max_speed, max_altitude, endurance, range_distance,
+            max_payload, camera_type, battery_capacity, gps_accuracy,
+            operating_temperature, waterproof_level, status, description,
+            purchase_date, ai_generated, deleted, create_time, update_time
+        ) VALUES (
+            #{name}, #{model}, #{serialNumber}, #{manufacturer}, #{type},
+            #{weight}, #{maxSpeed}, #{maxAltitude}, #{endurance}, #{rangeDistance},
+            #{maxPayload}, #{cameraType}, #{batteryCapacity}, #{gpsAccuracy},
+            #{operatingTemperature}, #{waterproofLevel}, #{status}, #{description},
+            #{purchaseDate}, #{aiGenerated}, #{deleted}, NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 按主键更新 -->
+    <update id="update" parameterType="com.drone.domain.entity.Drone">
+        UPDATE drone SET
+            name = #{name},
+            model = #{model},
+            serial_number = #{serialNumber},
+            manufacturer = #{manufacturer},
+            type = #{type},
+            weight = #{weight},
+            max_speed = #{maxSpeed},
+            max_altitude = #{maxAltitude},
+            endurance = #{endurance},
+            range_distance = #{rangeDistance},
+            max_payload = #{maxPayload},
+            camera_type = #{cameraType},
+            battery_capacity = #{batteryCapacity},
+            gps_accuracy = #{gpsAccuracy},
+            operating_temperature = #{operatingTemperature},
+            waterproof_level = #{waterproofLevel},
+            status = #{status},
+            description = #{description},
+            purchase_date = #{purchaseDate},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 逻辑删除：设置 deleted=1，不物理删除 -->
+    <delete id="deleteById">
+        UPDATE drone SET deleted = 1 WHERE id = #{id}
+    </delete>
+
+    <!-- ==================== SQLite 版本（databaseId="sqlite"） ==================== -->
+
+    <!-- 条件模糊查询：SQLite 用 || 而不是 CONCAT -->
+    <select id="selectByCondition" resultMap="droneMap" databaseId="sqlite">
+        SELECT * FROM drone
+        WHERE deleted = 0
+        <if test="name != null and name != ''">
+            AND name LIKE '%' || #{name} || '%'
+        </if>
+        <if test="model != null and model != ''">
+            AND model LIKE '%' || #{model} || '%'
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" resultMap="droneMap" databaseId="sqlite">
+        SELECT * FROM drone WHERE id = #{id} AND deleted = 0
+    </select>
+
+    <!-- 新增：SQLite 用 datetime('now') 替代 MySQL 的 NOW() -->
+    <insert id="insert" parameterType="com.drone.domain.entity.Drone" databaseId="sqlite">
+        INSERT INTO drone (
+            name, model, serial_number, manufacturer, type,
+            weight, max_speed, max_altitude, endurance, range_distance,
+            max_payload, camera_type, battery_capacity, gps_accuracy,
+            operating_temperature, waterproof_level, status, description,
+            purchase_date, ai_generated, deleted, create_time, update_time
+        ) VALUES (
+            #{name}, #{model}, #{serialNumber}, #{manufacturer}, #{type},
+            #{weight}, #{maxSpeed}, #{maxAltitude}, #{endurance}, #{rangeDistance},
+            #{maxPayload}, #{cameraType}, #{batteryCapacity}, #{gpsAccuracy},
+            #{operatingTemperature}, #{waterproofLevel}, #{status}, #{description},
+            #{purchaseDate}, #{aiGenerated}, #{deleted}, datetime(''now''), datetime(''now'')
+        )
+    </insert>
+
+    <update id="update" parameterType="com.drone.domain.entity.Drone" databaseId="sqlite">
+        UPDATE drone SET
+            name = #{name},
+            model = #{model},
+            serial_number = #{serialNumber},
+            manufacturer = #{manufacturer},
+            type = #{type},
+            weight = #{weight},
+            max_speed = #{maxSpeed},
+            max_altitude = #{maxAltitude},
+            endurance = #{endurance},
+            range_distance = #{rangeDistance},
+            max_payload = #{maxPayload},
+            camera_type = #{cameraType},
+            battery_capacity = #{batteryCapacity},
+            gps_accuracy = #{gpsAccuracy},
+            operating_temperature = #{operatingTemperature},
+            waterproof_level = #{waterproofLevel},
+            status = #{status},
+            description = #{description},
+            purchase_date = #{purchaseDate},
+            update_time = datetime(''now'')
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" databaseId="sqlite">
+        UPDATE drone SET deleted = 1 WHERE id = #{id}
+    </delete>
+
+</mapper>
+
