@@ -1,0 +1,22 @@
+﻿# ==================================================================
+# Spring Boot 主配置文件（所有 profile 共用）
+# ==================================================================
+server:
+  port: 8080  # Web 服务端口
+
+spring:
+  profiles:
+    active: mysql  # 默认激活的数据库配置：mysql 或 sqlite
+  http:
+    encoding:
+      charset: UTF-8    # HTTP 请求/响应强制使用 UTF-8 编码
+      enabled: true
+      force: true
+
+# MyBatis 全局配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml   # Mapper XML 文件路径
+  type-aliases-package: com.drone.entity      # 实体类别名，XML 中可直接使用类名
+  configuration:
+    map-underscore-to-camel-case: true        # 自动映射：serial_number → serialNumber
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # SQL 日志输出到控制台

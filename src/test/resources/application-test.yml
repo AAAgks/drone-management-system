@@ -1,0 +1,14 @@
+# 测试环境配置
+# Controller 测试使用 H2 内存数据库 + @MockBean 绕过认证
+
+spring:
+  # 不激活 mysql/sqlite 等生产 profile
+  profiles:
+    active: test
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    initialization-mode: never

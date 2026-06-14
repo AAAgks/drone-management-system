@@ -1,0 +1,4 @@
+com\example\uav\InitDb.class
+com\example\uav\service\impl\UavServiceImplTest.class
+com\example\uav\controller\UavControllerTest.class
+com\example\uav\mapper\UavMapperTest.class

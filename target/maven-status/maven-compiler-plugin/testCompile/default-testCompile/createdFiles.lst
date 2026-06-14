@@ -1,0 +1,4 @@
+com\drone\controller\DroneControllerTest.class
+com\drone\mapper\DroneMapperTest.class
+com\drone\InitDb.class
+com\drone\service\impl\DroneServiceImplTest.class

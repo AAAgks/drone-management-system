@@ -1,0 +1,20 @@
+﻿# ==================================================================
+# MySQL 数据源配置（spring.profiles=mysql 时生效）
+# ==================================================================
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource   # 使用 Druid 连接池
+    driver-class-name: com.mysql.cj.jdbc.Driver     # MySQL JDBC 驱动
+    # JDBC URL：连接到本机 3306 端口，指定编码和时区
+    url: jdbc:mysql://localhost:3306/drone_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:xiaogan}   # 优先读环境变量，默认 xiaogan
+    password: ${MYSQL_PASSWORD:Gankeshun181.}  # 优先读环境变量
+    druid:
+      initial-size: 5        # 连接池初始大小
+      min-idle: 5            # 最小空闲连接
+      max-active: 20         # 最大活跃连接
+      max-wait: 60000        # 获取连接最大等待时间（毫秒）
+      connection-init-sqls: SET NAMES utf8mb4  # 新连接初始化 SQL
+    initialization-mode: always  # 每次启动都执行 schema.sql 建表
+    schema: classpath:schema.sql  # 建表 SQL 文件路径
+    continue-on-error: true  # 建表失败不中断启动（如已存在表）
